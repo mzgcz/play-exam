@@ -5,12 +5,58 @@ using namespace std;
 Trader::Trader(const char* _status)
 {
     status = string(_status);
+    profit = 0;
+    investment = 0;
 }
 
 Trader::Trader(const char* _status, const char* _transaction)
 {
     status = string(_status);
-    transactions.push_back(string(_transaction));
+    transaction.push_back(string(_transaction));
+    profit = 0;
+    investment = 0;
+}
+
+Trader Trader::buy(int price)
+{
+    Trader trader = *this;
+    
+    trader.status = string("FULL");
+    trader.transaction.push_back(string("buy"));
+    trader.investment = price;
+
+    return trader;
+}
+
+Trader Trader::sell(int price)
+{
+    Trader trader = *this;
+
+    trader.status = string("COOL");
+    trader.transaction.push_back(string("sell"));
+    trader.profit += price - trader.investment;
+    trader.investment = 0;
+
+    return trader;
+}
+
+Trader Trader::cool()
+{
+    Trader trader = *this;
+
+    trader.status = string("EMPTY");
+    trader.transaction.push_back(string("cooldown"));
+
+    return trader;
+}
+
+Trader Trader::pass()
+{
+    Trader trader = *this;
+
+    trader.transaction.push_back(string("pass"));
+
+    return trader;
 }
 
 vector<Trader> Trader::evolution(int price)
@@ -18,28 +64,13 @@ vector<Trader> Trader::evolution(int price)
     vector<Trader> traders;
 
     if (string("EMPTY") == status) {
-        Trader trader_buy = *this;
-        trader_buy.status = string("FULL");
-        trader_buy.transactions.push_back(string("buy"));
-        traders.push_back(trader_buy);
-
-        Trader trader_pass = *this;
-        trader_pass.transactions.push_back(string("pass"));
-        traders.push_back(trader_pass);
+        traders.push_back(buy(price));
+        traders.push_back(pass());
     } else if (string("FULL") == status) {
-        Trader trader_buy = *this;
-        trader_buy.status = string("COOL");
-        trader_buy.transactions.push_back(string("sell"));
-        traders.push_back(trader_buy);
-
-        Trader trader_pass = *this;
-        trader_pass.transactions.push_back(string("pass"));
-        traders.push_back(trader_pass);
+        traders.push_back(sell(price));
+        traders.push_back(pass());
     } else if (string("COOL") == status) {
-        Trader trader_cool = *this;
-        trader_cool.status = string("EMPTY");
-        trader_cool.transactions.push_back(string("cooldown"));
-        traders.push_back(trader_cool);
+        traders.push_back(cool());
     }
 
     return traders;
@@ -47,5 +78,21 @@ vector<Trader> Trader::evolution(int price)
 
 bool Trader::operator==(const Trader &t) const
 {
-    return (this->status == t.status) && (this->transactions == t.transactions);
+    return (this->status == t.status
+            && this->transaction == t.transaction);
+}
+
+const string& Trader::get_status() const
+{
+    return status;
+}
+
+const vector<string>& Trader::get_transaction() const
+{
+    return transaction;
+}
+
+int Trader::get_profit() const
+{
+    return profit;
 }
