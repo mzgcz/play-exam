@@ -1,3 +1,5 @@
+#include <map>
+#include <utility>
 #include "trader.hh"
 
 using namespace std;
@@ -59,21 +61,42 @@ Trader Trader::pass()
     return trader;
 }
 
-vector<Trader> Trader::evolution(int price)
-{
+vector<Trader> Trader::opt_when_empty(int price) {
     vector<Trader> traders;
 
-    if (string("EMPTY") == status) {
-        traders.push_back(buy(price));
-        traders.push_back(pass());
-    } else if (string("FULL") == status) {
-        traders.push_back(sell(price));
-        traders.push_back(pass());
-    } else if (string("COOL") == status) {
-        traders.push_back(cool());
-    }
+    traders.push_back(buy(price));
+    traders.push_back(pass());
 
     return traders;
+}
+
+vector<Trader> Trader::opt_when_full(int price) {
+    vector<Trader> traders;
+
+    traders.push_back(sell(price));
+    traders.push_back(pass());
+
+    return traders;
+}
+
+vector<Trader> Trader::opt_when_cool(int price) {
+    vector<Trader> traders;
+
+    traders.push_back(cool());
+
+    return traders;
+}
+
+vector<Trader> Trader::evolution(int price)
+{
+    typedef vector<Trader> (Trader::*p_vec_trader)(int);
+    std::map<string, p_vec_trader> status_fun;
+
+    status_fun.insert(make_pair("EMPTY", &Trader::opt_when_empty));
+    status_fun.insert(make_pair("FULL", &Trader::opt_when_full));
+    status_fun.insert(make_pair("COOL", &Trader::opt_when_cool));
+
+    return (this->*status_fun[status])(price);
 }
 
 bool Trader::operator==(const Trader &t) const

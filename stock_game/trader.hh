@@ -20,7 +20,13 @@ class Trader
     std::vector<std::string> transaction;
     int profit;
     int investment;
-    
+
+  private:
+    std::vector<Trader> opt_when_empty(int price);
+    std::vector<Trader> opt_when_full(int price);
+    std::vector<Trader> opt_when_cool(int price);
+
+  private:
     Trader buy(int price);
     Trader sell(int price);
     Trader cool();

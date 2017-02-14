@@ -24,9 +24,11 @@ int Stock::get_max_profit(vector<int> prices)
     std::vector<Trader>::iterator it = max_element(traders.begin(), traders.end(), [](Trader &a, Trader &b) {
             return (a.get_profit() < b.get_profit());
         });
-    traders.erase(remove_if(traders.begin(), traders.end(), [it](Trader &trader) {
+    max_profit = it->get_profit();
+    
+    traders.erase(remove_if(traders.begin(), traders.end(), [this](Trader &trader) {
                 if ("FULL" != trader.get_status()
-                    && trader.get_profit() < it->get_profit()) {
+                    && trader.get_profit() < this->max_profit) {
                     return true;
                 }
 
@@ -38,7 +40,6 @@ int Stock::get_max_profit(vector<int> prices)
         auto transaction = trader.get_transaction();
         if (transaction.size() > 0
             && trader.get_status() != string("FULL")) {
-            max_profit = trader.get_profit();
             transactions.push_back(transaction);
         }
     }
