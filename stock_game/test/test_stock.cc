@@ -80,3 +80,16 @@ TEST(give_prices_is_1_2_3_1_3, stock_test)
     transactions.push_back(transaction);
     EXPECT_EQ(transactions, stock.get_transactions());
 }
+
+TEST(give_prices_is_1_2_3_4_1_repeat_20, stock_test)
+{
+    Stock stock;
+    
+    vector<int> prices = {1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1, 1, 2, 3, 4, 1};
+    EXPECT_EQ(60, stock.get_max_profit(prices));
+
+    vector<vector<string>> transactions;
+    vector<string> transaction = {"buy", "sell", "cooldown", "buy", "sell"};
+    transactions.push_back(transaction);
+    EXPECT_EQ(transactions, stock.get_transactions());
+}
