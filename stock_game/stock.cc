@@ -1,3 +1,24 @@
+// 每天所做的事：
+// 1. 操作：buy, sell, pass, cooldown
+// 2. 剪枝：排除其中必然无法获取最大利润的组合
+
+// 最后一天所做的事：
+// 1. 操作：buy, sell, pass, cooldown
+// 2. 剪枝：排除其中比如无法获取最大利润的组合
+// 3. 清算：清点当前所有组合中的利润最大者，且状态不是满仓
+
+// 剪枝依据：
+// 1. 现额：当前利润-当前投资额
+// 2. 状态自由度：满仓[FULL](2)、空仓可操作[EMPTY](1)、空仓不可操作[COOL](0)
+// --------------------------------------------
+// A\B         满仓    空仓可操作    空仓不可操作
+// 满仓          >         >            >
+// 空仓可操作               >            >
+// 空仓不可操作                          >
+// --------------------------------------------
+// 表述：当A的现额 > B的现额，且A的状态自由度 >= B的状态自由度，
+//          则最大利润组合将出现在A中，B可以剪去
+
 #include <algorithm>
 #include "stock.hh"
 
@@ -8,7 +29,7 @@ Stock::Stock()
     max_profit = 0;
 }
 
-void Stock::evolution_every_day(vector<Trader> &traders, int price) {
+void Stock::evolution_every_day(vector<Trader> &traders, int price) const {
     vector<Trader> tmp_traders = traders;
     
     traders.clear();

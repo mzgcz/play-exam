@@ -15,7 +15,7 @@ class Stock
     std::vector<std::vector<std::string>> transactions;
 
   private:
-    void evolution_every_day(std::vector<Trader> &traders, int price);
+    void evolution_every_day(std::vector<Trader> &traders, int price) const;
 };
 
 
