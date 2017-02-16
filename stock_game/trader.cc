@@ -1,22 +1,20 @@
-#include <map>
-#include <utility>
 #include "trader.hh"
 
 using namespace std;
 
-Trader::Trader(const char* _status)
-{
-    status = string(_status);
-    profit = 0;
-    investment = 0;
-}
-
 Trader::Trader(const char* _status, const char* _transaction)
 {
+    status_freedom.insert(make_pair("FULL", 2));
+    status_freedom.insert(make_pair("EMPTY", 1));
+    status_freedom.insert(make_pair("COOL", 0));
+    
     status = string(_status);
-    transaction.push_back(string(_transaction));
-    profit = 0;
+    freedom = status_freedom[status];
+    if (_transaction != NULL) {
+        transaction.push_back(string(_transaction));
+    }
     investment = 0;
+    cash = 0;
 }
 
 Trader Trader::buy(int price)
@@ -24,8 +22,10 @@ Trader Trader::buy(int price)
     Trader trader = *this;
     
     trader.status = string("FULL");
+    trader.freedom = trader.status_freedom[trader.status];
     trader.transaction.push_back(string("buy"));
     trader.investment = price;
+    trader.cash -= trader.investment;
 
     return trader;
 }
@@ -35,9 +35,10 @@ Trader Trader::sell(int price)
     Trader trader = *this;
 
     trader.status = string("COOL");
+    trader.freedom = trader.status_freedom[trader.status];
     trader.transaction.push_back(string("sell"));
-    trader.profit += price - trader.investment;
     trader.investment = 0;
+    trader.cash += price;
 
     return trader;
 }
@@ -47,6 +48,7 @@ Trader Trader::cool()
     Trader trader = *this;
 
     trader.status = string("EMPTY");
+    trader.freedom = trader.status_freedom[trader.status];
     trader.transaction.push_back(string("cooldown"));
 
     return trader;
@@ -105,6 +107,16 @@ bool Trader::operator==(const Trader &t) const
             && this->transaction == t.transaction);
 }
 
+bool Trader::operator<(const Trader &t) const
+{
+    if (cash < t.cash
+        && freedom <= t.freedom) {
+        return true;
+    }
+
+    return false;
+}
+
 const string& Trader::get_status() const
 {
     return status;
@@ -115,7 +127,7 @@ const vector<string>& Trader::get_transaction() const
     return transaction;
 }
 
-int Trader::get_profit() const
+int Trader::get_cash() const
 {
-    return profit;
+    return cash;
 }

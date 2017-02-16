@@ -19,16 +19,26 @@ int Stock::get_max_profit(vector<int> prices)
                 vector<Trader> next = tmp.evolution(price);
                 traders.insert(traders.end(), next.begin(), next.end());
             }
+
+            vector<Trader>::iterator it = max_element(traders.begin(), traders.end());
+            traders.erase(remove_if(traders.begin(), traders.end(), [it](Trader &trader) {
+                        if (trader < *it) {
+                            return true;
+                        }
+                        
+                        return false;
+                    }),
+                traders.end());
         });
 
     std::vector<Trader>::iterator it = max_element(traders.begin(), traders.end(), [](Trader &a, Trader &b) {
-            return (a.get_profit() < b.get_profit());
+            return (a.get_cash() < b.get_cash());
         });
-    max_profit = it->get_profit();
+    max_profit = it->get_cash();
     
     traders.erase(remove_if(traders.begin(), traders.end(), [this](Trader &trader) {
                 if ("FULL" != trader.get_status()
-                    && trader.get_profit() < this->max_profit) {
+                    && trader.get_cash() < this->max_profit) {
                     return true;
                 }
 
