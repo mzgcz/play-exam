@@ -13,6 +13,9 @@ class Stock
   private:
     int max_profit;
     std::vector<std::vector<std::string>> transactions;
+
+  private:
+    void evolution_every_day(std::vector<Trader> &traders, int price);
 };
 
 

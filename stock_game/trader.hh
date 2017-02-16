@@ -8,32 +8,31 @@
 class Trader
 {
   public:
-    Trader(const char* _status, const char* _transaction=NULL);
-    std::vector<Trader> evolution(int price);
+    Trader(const char* _status="EMPTY", int _cash=0);
     bool operator==(const Trader &t) const;
     bool operator<(const Trader &t) const;
-    const std::string& get_status() const;
-    const std::vector<std::string>& get_transaction() const;
+    std::vector<Trader> evolution(int price) const;
     int get_cash() const;
+    const std::vector<std::string>& get_transaction() const;
     
   private:
     std::string status;
-    std::map<std::string, int> status_freedom;
-    int freedom;
     std::vector<std::string> transaction;
     int investment;
     int cash;
+    static std::map<std::string, int> status_freedom;
+    static std::map<std::string, std::vector<Trader>(Trader::*)(int) const> status_opt;
 
   private:
-    std::vector<Trader> opt_when_empty(int price);
-    std::vector<Trader> opt_when_full(int price);
-    std::vector<Trader> opt_when_cool(int price);
+    std::vector<Trader> opt_when_empty(int price) const;
+    std::vector<Trader> opt_when_full(int price) const;
+    std::vector<Trader> opt_when_cool(int price) const;
 
   private:
-    Trader buy(int price);
-    Trader sell(int price);
-    Trader cool();
-    Trader pass();
+    Trader buy(int price) const;
+    Trader sell(int price) const;
+    Trader cool() const;
+    Trader pass() const;
 };
 
 

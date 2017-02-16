@@ -8,48 +8,43 @@ Stock::Stock()
     max_profit = 0;
 }
 
+void Stock::evolution_every_day(vector<Trader> &traders, int price) {
+    vector<Trader> tmp_traders = traders;
+    
+    traders.clear();
+    for (Trader trader : tmp_traders) {
+        vector<Trader> next_traders = trader.evolution(price);
+        traders.insert(traders.end(), next_traders.begin(), next_traders.end());
+    }
+
+    vector<Trader>::iterator it = max_element(traders.begin(), traders.end());
+    traders.erase(remove_if(traders.begin(), traders.end(), [it](Trader &trader) {
+                return (trader < *it) ? true : false;
+            }),
+        traders.end());
+}
+
 int Stock::get_max_profit(vector<int> prices)
 {
-    vector<Trader> traders = {Trader("EMPTY")};
+    vector<Trader> traders = {Trader()};
     
-    for_each(begin(prices), end(prices), [&traders](int price) {
-            vector<Trader> tmps = traders;
-            traders.clear();
-            for (Trader tmp : tmps) {
-                vector<Trader> next = tmp.evolution(price);
-                traders.insert(traders.end(), next.begin(), next.end());
-            }
-
-            vector<Trader>::iterator it = max_element(traders.begin(), traders.end());
-            traders.erase(remove_if(traders.begin(), traders.end(), [it](Trader &trader) {
-                        if (trader < *it) {
-                            return true;
-                        }
-                        
-                        return false;
-                    }),
-                traders.end());
+    for_each(begin(prices), end(prices), [this, &traders](int price) {
+            evolution_every_day(traders, price);
         });
 
-    std::vector<Trader>::iterator it = max_element(traders.begin(), traders.end(), [](Trader &a, Trader &b) {
-            return (a.get_cash() < b.get_cash());
+    vector<Trader>::iterator it = max_element(traders.begin(), traders.end(), [](Trader &a, Trader &b) {
+            return a.get_cash() < b.get_cash();
         });
     max_profit = it->get_cash();
     
-    traders.erase(remove_if(traders.begin(), traders.end(), [this](Trader &trader) {
-                if ("FULL" != trader.get_status()
-                    && trader.get_cash() < this->max_profit) {
-                    return true;
-                }
-
-                return false;
+    traders.erase(remove_if(traders.begin(), traders.end(), [it](Trader &trader) {
+                return (trader.get_cash() < it->get_cash()) ? true : false;
             }),
         traders.end());
     
-    for (Trader trader : traders) {        
-        auto transaction = trader.get_transaction();
-        if (transaction.size() > 0
-            && trader.get_status() != string("FULL")) {
+    for (Trader trader : traders) {
+        vector<string> transaction = trader.get_transaction();
+        if (transaction.size() > 0) {
             transactions.push_back(transaction);
         }
     }

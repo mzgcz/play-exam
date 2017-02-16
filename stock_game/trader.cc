@@ -2,27 +2,30 @@
 
 using namespace std;
 
-Trader::Trader(const char* _status, const char* _transaction)
+map<string, int> Trader::status_freedom {
+    {"FULL", 2},
+    {"EMPTY", 1},
+    {"COOL", 0}
+};
+
+map<string, vector<Trader>(Trader::*)(int) const> Trader::status_opt {
+    {"FULL", &Trader::opt_when_full},
+    {"EMPTY", &Trader::opt_when_empty},
+    {"COOL", &Trader::opt_when_cool}
+};
+
+Trader::Trader(const char* _status, int _cash)
 {
-    status_freedom.insert(make_pair("FULL", 2));
-    status_freedom.insert(make_pair("EMPTY", 1));
-    status_freedom.insert(make_pair("COOL", 0));
-    
     status = string(_status);
-    freedom = status_freedom[status];
-    if (_transaction != NULL) {
-        transaction.push_back(string(_transaction));
-    }
     investment = 0;
-    cash = 0;
+    cash = _cash;
 }
 
-Trader Trader::buy(int price)
+Trader Trader::buy(int price) const
 {
     Trader trader = *this;
     
     trader.status = string("FULL");
-    trader.freedom = trader.status_freedom[trader.status];
     trader.transaction.push_back(string("buy"));
     trader.investment = price;
     trader.cash -= trader.investment;
@@ -30,12 +33,11 @@ Trader Trader::buy(int price)
     return trader;
 }
 
-Trader Trader::sell(int price)
+Trader Trader::sell(int price) const
 {
     Trader trader = *this;
 
     trader.status = string("COOL");
-    trader.freedom = trader.status_freedom[trader.status];
     trader.transaction.push_back(string("sell"));
     trader.investment = 0;
     trader.cash += price;
@@ -43,18 +45,17 @@ Trader Trader::sell(int price)
     return trader;
 }
 
-Trader Trader::cool()
+Trader Trader::cool() const
 {
     Trader trader = *this;
 
     trader.status = string("EMPTY");
-    trader.freedom = trader.status_freedom[trader.status];
     trader.transaction.push_back(string("cooldown"));
 
     return trader;
 }
 
-Trader Trader::pass()
+Trader Trader::pass() const
 {
     Trader trader = *this;
 
@@ -63,7 +64,7 @@ Trader Trader::pass()
     return trader;
 }
 
-vector<Trader> Trader::opt_when_empty(int price) {
+vector<Trader> Trader::opt_when_empty(int price) const {
     vector<Trader> traders;
 
     traders.push_back(buy(price));
@@ -72,7 +73,7 @@ vector<Trader> Trader::opt_when_empty(int price) {
     return traders;
 }
 
-vector<Trader> Trader::opt_when_full(int price) {
+vector<Trader> Trader::opt_when_full(int price) const {
     vector<Trader> traders;
 
     traders.push_back(sell(price));
@@ -81,7 +82,7 @@ vector<Trader> Trader::opt_when_full(int price) {
     return traders;
 }
 
-vector<Trader> Trader::opt_when_cool(int price) {
+vector<Trader> Trader::opt_when_cool(int price) const {
     vector<Trader> traders;
 
     traders.push_back(cool());
@@ -89,37 +90,21 @@ vector<Trader> Trader::opt_when_cool(int price) {
     return traders;
 }
 
-vector<Trader> Trader::evolution(int price)
+vector<Trader> Trader::evolution(int price) const
 {
-    typedef vector<Trader> (Trader::*p_vec_trader)(int);
-    std::map<string, p_vec_trader> status_fun;
-
-    status_fun.insert(make_pair("EMPTY", &Trader::opt_when_empty));
-    status_fun.insert(make_pair("FULL", &Trader::opt_when_full));
-    status_fun.insert(make_pair("COOL", &Trader::opt_when_cool));
-
-    return (this->*status_fun[status])(price);
+    return (this->*status_opt[status])(price);
 }
 
 bool Trader::operator==(const Trader &t) const
 {
-    return (this->status == t.status
-            && this->transaction == t.transaction);
+    return (cash == t.cash
+            && status == t.status);
 }
 
 bool Trader::operator<(const Trader &t) const
 {
-    if (cash < t.cash
-        && freedom <= t.freedom) {
-        return true;
-    }
-
-    return false;
-}
-
-const string& Trader::get_status() const
-{
-    return status;
+    return (cash < t.cash
+            && status_freedom[status] <= status_freedom[t.status]);
 }
 
 const vector<string>& Trader::get_transaction() const
