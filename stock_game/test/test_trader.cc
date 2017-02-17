@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../trader.hh"
+#include "trader.hh"
 
 using namespace std;
 

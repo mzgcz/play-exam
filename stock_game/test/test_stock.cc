@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../stock.hh"
+#include "stock.hh"
 
 using namespace std;
 
